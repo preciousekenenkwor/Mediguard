@@ -1,0 +1,44 @@
+services:
+  # PHP Service
+  php:
+    build:
+      context: .
+      target: php
+      args:
+        - APP_ENV=${APP_ENV}
+    environment:
+      - APP_ENV=${APP_ENV}
+    working_dir: /var/medicare
+    volumes:
+      - ./:/var/medicare
+    ports:
+      - 8000:8000
+    depends_on:
+      - medicare_db
+
+
+  #Database config
+  medicare_db: #The database name saved in the .env file
+    image: mysql:latest
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_DATABASE=${DB_DATABASE}
+      - MYSQL_USER=${DB_USERNAME}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - medicare_db:/var/lib/mysql
+  
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    restart: always
+    ports:
+      - 9001:80
+    environment:
+      - PMA_ARBITRARY=1
+    depends_on:
+      - medicare_db 
+
+volumes:
+  medicare_db: ~
